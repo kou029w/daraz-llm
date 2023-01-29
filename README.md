@@ -14,7 +14,7 @@ Step 2
 
 [Slack Applications](https://api.slack.com/apps) → Create New App → From an app manifest
 
-下記の Manifest をコピペして、Slack アプリを作成します。
+下記の Manifest をコピペして、Slack アプリを作成
 
 ```yaml
 display_information:
