@@ -30,7 +30,6 @@ settings:
 ```
 
 Step 2
-
 : Vercel へのデプロイ
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fkou029w%2Fdaraz-gpt&env=SLACK_BOT_TOKEN,SLACK_SIGNING_SECRET,OPENAI_API_KEY)
