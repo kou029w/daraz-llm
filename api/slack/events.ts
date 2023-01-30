@@ -33,7 +33,7 @@ const app = new App({ token, receiver });
 app.event("app_mention", async ({ event, say }) => {
   const prompt = `語尾を「にゃん」に。${event.text
     .replace(/<@[0-9A-Z]+>/, "")
-    .trim()}\n\n`;
+    .trim()}\n`;
   const text = await gpt(prompt);
   await say(text);
 });
