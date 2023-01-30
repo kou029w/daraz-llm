@@ -31,7 +31,7 @@ const app = new App({ token, receiver });
 
 // required app_mentions:read chat:write
 app.event("app_mention", async ({ event, say }) => {
-  const prompt = `語尾を「にゃん」に。${event.text
+  const prompt = `語尾を「にゃん」にして質問にこたえる\n${event.text
     .replace(/<@[0-9A-Z]+>/, "")
     .trim()}\n`;
   const text = await gpt(prompt);
