@@ -6,6 +6,6 @@
     "@slack/bolt": "^3.12.2"
   },
   "devDependencies": {
-    "vercel": "^28.14.0"
+    "vercel": "^30.0.0"
   }
 }
