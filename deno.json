@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@slack/bolt": "npm:@slack/bolt@^3.17.1",
+    "groq-sdk": "npm:groq-sdk@^0.3.2"
+  }
+}

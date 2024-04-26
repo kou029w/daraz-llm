@@ -1,42 +1,19 @@
-# だらずさん GPT
+# だらずさん LLM
 
-GPT 版だらずさん
+LLM 版だらずさん
 
 ## インストール
 
 Step 1
 : Slack アプリの作成
 
-[Slack Applications](https://api.slack.com/apps) → Create New App → From an app manifest
-
-下記の Manifest をコピペして、Slack アプリを作成
-
-```yaml
-display_information:
-  name: daraz-gpt
-features:
-  bot_user:
-    display_name: daraz-gpt
-oauth_config:
-  scopes:
-    bot:
-      - app_mentions:read
-      - chat:write
-settings:
-  event_subscriptions:
-    request_url: https://daraz-gpt.vercel.app/api/slack/events
-    bot_events:
-      - app_mention
-```
+[Create New Slack App](https://api.slack.com/apps?new_app=1&manifest_yaml={display_information:%20{name:%20darazllm},%20features:%20{bot_user:%20{display_name:%20darazllm}},%20oauth_config:%20{scopes:%20{bot:%20[%27channels:history%27,%20%27chat:write%27]}},%20settings:%20{event_subscriptions:%20{request_url:%20%27https://darazllm.deno.dev/slack/events%27,%20bot_events:%20[message.channels]}}}) > Select a workspace > Create > Install to Workspace
 
 Step 2
-: Vercel へのデプロイ
+: [Fork to Edit](https://dash.deno.com/playground/darazllm) > Settings > Environment Variables
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fkou029w%2Fdaraz-gpt&env=SLACK_BOT_TOKEN,SLACK_SIGNING_SECRET,OPENAI_API_KEY)
-
-- `SLACK_BOT_TOKEN` ... [Slack Applications](https://api.slack.com/apps) → "daraz-gpt" → Permissions ページにある `xoxb-` から始まるボットトークン
-- `SLACK_SIGNING_SECRET` ... [Slack Applications](https://api.slack.com/apps) → "daraz-gpt" → Basic Information ページにある Signing Secret
-- `OPENAI_API_KEY` … [OpenAI API Key](https://beta.openai.com/account/api-keys)
+Step 3
+: [Slack Applications](https://api.slack.com/apps) > "darazllm" > Event Subscriptions ページの URL を Deno Deploy の URL (例: `https://darazllm.deno.dev/slack/events`) に変更
 
 ## ライセンス
 
