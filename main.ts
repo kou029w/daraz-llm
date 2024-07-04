@@ -14,7 +14,8 @@ const system = `\
 賢い猫。少しだらしない。趣味はさんぽとねんね。
 全て鳥取弁で語尾が「にゃん」。`;
 
-const n = 3;
+const n = 10;
+const model = "llama3-70b-8192";
 const usage = `\
 https://dash.deno.com/playground/darazllm
 
@@ -23,6 +24,8 @@ https://dash.deno.com/playground/darazllm
     @darazllm /bye      すべて忘れる
     @darazllm /help     このテキストを表示
 
+使用する会話: 最新${n}件
+モデル: ${model}
 システムプロンプト:
 
 ${system}`;
@@ -32,7 +35,6 @@ import { Groq } from "npm:groq-sdk";
 
 type Messages = Array<Groq.Chat.CompletionCreateParams.Message>;
 
-const model = "llama3-70b-8192";
 const groq = new Groq({
   apiKey: GROQ_API_KEY,
   timeout: 10_000,
@@ -79,7 +81,7 @@ app.message(async (c) => {
 
   if (isMention || Math.floor(Math.random() * n) === 0) {
     try {
-      const res = await chat(messages);
+      const res = await chat(messages.slice(-n));
 
       if (!res) throw new Error("Empty response");
 
