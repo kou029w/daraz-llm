@@ -15,7 +15,7 @@ const system = `\
 全て鳥取弁で語尾が「にゃん」。`;
 
 const n = 10;
-const model = "llama3-70b-8192";
+const model = "llama-3.1-70b-versatile";
 const usage = `\
 https://dash.deno.com/playground/darazllm
 
