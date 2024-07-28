@@ -33,7 +33,7 @@ ${system}`;
 import bolt from "npm:@slack/bolt";
 import { Groq } from "npm:groq-sdk";
 
-type Messages = Array<Groq.Chat.CompletionCreateParams.Message>;
+type Messages = Array<Groq.Chat.ChatCompletionMessageParam>;
 
 const groq = new Groq({
   apiKey: GROQ_API_KEY,
@@ -41,7 +41,7 @@ const groq = new Groq({
 });
 const kv = await Deno.openKv();
 
-async function chat(messages: Messages): Promise<string> {
+async function chat(messages: Messages): Promise<string | null> {
   const res = await groq.chat.completions.create({
     model,
     messages: [{ role: "system", content: system }, ...messages],
