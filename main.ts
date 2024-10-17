@@ -15,7 +15,7 @@ const system = `\
 全て鳥取弁で語尾が「にゃん」。`;
 
 const n = 10;
-const textModel = "llama-3.2-90b-text-preview";
+const textModel = "llama-3.1-70b-versatile";
 const visionModel = "llama-3.2-90b-vision-preview";
 const urlPattern = new URLPattern({ pathname: "*.*" });
 const separatorRegex = /[<>]|[^\p{L}\p{N}\p{P}\p{S}]+/u;
