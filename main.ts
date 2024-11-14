@@ -27,7 +27,7 @@ const usage = `\
 https://dash.deno.com/playground/darazllm
 
 使い方:
-    @darazllm <prompt>  (または1/${n}の確率で)応答
+    @darazllm <prompt>  応答
     @darazllm /bye      すべて忘れる
     @darazllm /help     このテキストを表示
 
@@ -74,7 +74,7 @@ async function visionChat(
       {
         role: "user",
         content: content.map((c) =>
-          c.type === "text" ? { ...c, text: `${system}\n\n${c.text}` } : c
+          c.type === "text" ? { ...c, text: `${system}\n\n${c.text}` } : c,
         ),
       },
     ],
@@ -112,7 +112,7 @@ app.message(async (c) => {
 
   if (prompt) messages.push({ role: "user", content: prompt });
 
-  if (isMention || Math.floor(Math.random() * n) === 0) {
+  if (isMention) {
     const content: Array<Groq.Chat.ChatCompletionContentPart> = prompt
       .split(separatorRegex)
       .filter(Boolean)
