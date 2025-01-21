@@ -18,7 +18,7 @@ const system = `\
 句読点の無いフレンドリーな感じです。`;
 
 const n = 10;
-const model = "google/gemini-2.0-flash-thinking-exp:free";
+const model = "google/gemini-2.0-flash-exp:free";
 const baseURL = "https://openrouter.ai/api/v1";
 const urlPattern = new URLPattern({ pathname: "*.*" });
 const separatorRegex = /[<>]|[^\p{L}\p{N}\p{P}\p{S}]+/u;
