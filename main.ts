@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: WTFPL
 
 const {
-  /** https://console.groq.com/docs/api-keys */
-  GROQ_API_KEY,
+  /** https://openrouter.ai/settings/keys */
+  OPENROUTER_API_KEY = "",
   /** https://api.slack.com/apps → Basic Information ページにある Signing Secret */
   SLACK_SIGNING_SECRET = "",
   /** https://api.slack.com/apps → Permissions ページにある `xoxb-` から始まるボットトークン */
@@ -18,8 +18,8 @@ const system = `\
 句読点の無いフレンドリーな感じです。`;
 
 const n = 10;
-const textModel = "llama-3.3-70b-versatile";
-const visionModel = "llama-3.2-90b-vision-preview";
+const model = "google/gemini-2.0-flash-thinking-exp:free";
+const baseURL = "https://openrouter.ai/api/v1";
 const urlPattern = new URLPattern({ pathname: "*.*" });
 const separatorRegex = /[<>]|[^\p{L}\p{N}\p{P}\p{S}]+/u;
 const imageExtensionRegex = /[.](?:gif|png|jpe?g|webp)$/i;
@@ -32,28 +32,30 @@ https://dash.deno.com/playground/darazllm
     @darazllm /help     このテキストを表示
 
 使用する会話: 最新${n}件
-テキスト用モデル: ${textModel}
-画像用モデル: ${visionModel}
+モデル: ${model}
+ベースURL: ${baseURL}
 区切り文字: ${separatorRegex}
 画像拡張子: ${imageExtensionRegex}
 システムプロンプト:
 
 ${system}`;
 
+import OpenAI from "jsr:@openai/openai";
 import bolt from "npm:@slack/bolt";
-import { Groq } from "npm:groq-sdk";
 
-type Messages = Array<Groq.Chat.ChatCompletionMessageParam>;
+type Messages = Array<OpenAI.Chat.ChatCompletionMessageParam>;
 
-const groq = new Groq({
-  apiKey: GROQ_API_KEY,
+const openai = new OpenAI({
+  baseURL,
+  apiKey: OPENROUTER_API_KEY,
   timeout: 10_000,
 });
+
 const kv = await Deno.openKv();
 
 async function chat(messages: Messages): Promise<string | null> {
-  const res = await groq.chat.completions.create({
-    model: textModel,
+  const res = await openai.chat.completions.create({
+    model,
     messages: [{ role: "system", content: system }, ...messages],
   });
 
@@ -62,25 +64,6 @@ async function chat(messages: Messages): Promise<string | null> {
 
 function isImageUrl(message: string): boolean {
   return urlPattern.test(message) && imageExtensionRegex.test(message);
-}
-
-/** llama-3.2-90b-vision-preview はシステムプロンプトに対応してない、かつ、画像は1枚まで */
-async function visionChat(
-  content: Array<Groq.Chat.ChatCompletionContentPart>,
-): Promise<string | null> {
-  const res = await groq.chat.completions.create({
-    model: visionModel,
-    messages: [
-      {
-        role: "user",
-        content: content.map((c) =>
-          c.type === "text" ? { ...c, text: `${system}\n\n${c.text}` } : c,
-        ),
-      },
-    ],
-  });
-
-  return res.choices[0].message.content;
 }
 
 const app = new bolt.App({
@@ -110,26 +93,22 @@ app.message(async (c) => {
   const kve = await kv.get<Messages>(["channel", c.message.channel]);
   const messages = kve.value ?? [];
 
-  if (prompt) messages.push({ role: "user", content: prompt });
+  const content: Array<OpenAI.Chat.ChatCompletionContentPart> = prompt
+    .split(separatorRegex)
+    .filter(Boolean)
+    .map((text) => {
+      if (isImageUrl(text)) {
+        return { type: "image_url", image_url: { url: text } };
+      } else {
+        return { type: "text", text };
+      }
+    });
+
+  if (prompt) messages.push({ role: "user", content });
 
   if (isMention) {
-    const content: Array<Groq.Chat.ChatCompletionContentPart> = prompt
-      .split(separatorRegex)
-      .filter(Boolean)
-      .map((text) => {
-        if (isImageUrl(text)) {
-          return { type: "image_url", image_url: { url: text } };
-        } else {
-          return { type: "text", text };
-        }
-      });
-
-    const visionMode = content.some((c) => c.type === "image_url");
-
     try {
-      const res = visionMode
-        ? await visionChat(content)
-        : await chat(messages.slice(-n));
+      const res = await chat(messages.slice(-n));
 
       if (!res) throw new Error("Empty response");
 

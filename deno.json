@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@slack/bolt": "npm:@slack/bolt@^3.22.0",
-    "groq-sdk": "npm:groq-sdk@^0.7.0"
+    "@openai/openai": "jsr:@openai/openai@^4.79.1",
+    "@slack/bolt": "npm:@slack/bolt@^4.2.0"
   }
 }
