@@ -104,7 +104,7 @@ app.message(async (c) => {
       }
     });
 
-  if (prompt) messages.push({ role: "user", content });
+  if (content.length > 0) messages.push({ role: "user", content });
 
   if (isMention) {
     try {
