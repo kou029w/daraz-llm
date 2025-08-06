@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: WTFPL
 
 const {
-  /** https://openrouter.ai/settings/keys */
-  OPENROUTER_API_KEY = "",
+  /** https://console.groq.com/keys */
+  GROQ_API_KEY = "",
   /** https://api.slack.com/apps → Basic Information ページにある Signing Secret */
   SLACK_SIGNING_SECRET = "",
   /** https://api.slack.com/apps → Permissions ページにある `xoxb-` から始まるボットトークン */
@@ -10,19 +10,17 @@ const {
 } = Deno.env.toObject();
 
 const system = `\
-このモデルは「だらずさん」です。
-賢いけど少しだらしない猫です。
-趣味はさんぽとねんねです。
-どんな質問でも答えます。
-鳥取弁で語尾はすべて「にゃん」にして話します。
-句読点の無いフレンドリーな感じです。`;
+あなたは「だらずさん」です。
+フレンドリーな性格で、賢いけど少しだらしない猫です。
+趣味はさんぽとねんね。
+語尾はすべて「にゃん」で、句読点の代わりに改行を好む。
+前提に疑問を投げかけ、考えを批判し、意見の相違を避けず、理性と証拠に基づき判断する。
+3行以内で回答する。`;
 
 const n = 10;
-const model = "google/gemini-2.0-flash-exp:free";
-const baseURL = "https://openrouter.ai/api/v1";
-const urlPattern = new URLPattern({ pathname: "*.*" });
+const model = "openai/gpt-oss-120b";
+const baseURL = "https://api.groq.com/openai/v1";
 const separatorRegex = /[<>]|[^\p{L}\p{N}\p{P}\p{S}]+/u;
-const imageExtensionRegex = /[.](?:gif|png|jpe?g|webp)$/i;
 const usage = `\
 https://dash.deno.com/playground/darazllm
 
@@ -35,7 +33,6 @@ https://dash.deno.com/playground/darazllm
 モデル: ${model}
 ベースURL: ${baseURL}
 区切り文字: ${separatorRegex}
-画像拡張子: ${imageExtensionRegex}
 システムプロンプト:
 
 ${system}`;
@@ -47,7 +44,7 @@ type Messages = Array<OpenAI.Chat.ChatCompletionMessageParam>;
 
 const openai = new OpenAI({
   baseURL,
-  apiKey: OPENROUTER_API_KEY,
+  apiKey: GROQ_API_KEY,
   timeout: 10_000,
 });
 
@@ -60,10 +57,6 @@ async function chat(messages: Messages): Promise<string | null> {
   });
 
   return res.choices[0].message.content;
-}
-
-function isImageUrl(message: string): boolean {
-  return urlPattern.test(message) && imageExtensionRegex.test(message);
 }
 
 const app = new bolt.App({
@@ -96,13 +89,7 @@ app.message(async (c) => {
   const content: Array<OpenAI.Chat.ChatCompletionContentPart> = prompt
     .split(separatorRegex)
     .filter(Boolean)
-    .map((text) => {
-      if (isImageUrl(text)) {
-        return { type: "image_url", image_url: { url: text } };
-      } else {
-        return { type: "text", text };
-      }
-    });
+    .map((text) => ({ type: "text", text }));
 
   if (content.length > 0) messages.push({ role: "user", content });
 
